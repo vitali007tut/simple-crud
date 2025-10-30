@@ -29,3 +29,40 @@ export function getUserById(req: IncomingMessage, res: ServerResponse) {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(user));
 }
+
+import { createUser as generateUser } from '../models/user';
+
+export function createUser(req: IncomingMessage, res: ServerResponse) {
+    let body = '';
+
+    req.on('data', (chunk) => {
+        body += chunk;
+    });
+
+    req.on('end', () => {
+        try {
+            const data = JSON.parse(body);
+            const { username, age, hobbies } = data;
+
+            if (
+                typeof username !== 'string' ||
+                typeof age !== 'number' ||
+                !Array.isArray(hobbies) ||
+                !hobbies.every((h) => typeof h === 'string')
+            ) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Invalid user data' }));
+                return;
+            }
+
+            const newUser = generateUser(username, age, hobbies);
+            users.push(newUser);
+
+            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(newUser));
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Invalid JSON format' }));
+        }
+    });
+}
