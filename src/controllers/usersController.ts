@@ -123,3 +123,27 @@ export function updateUser(req: IncomingMessage, res: ServerResponse) {
         }
     });
 }
+
+export function deleteUser(req: IncomingMessage, res: ServerResponse) {
+    const urlParts = parse(req.url || '', true);
+    const id = urlParts.pathname?.split('/').pop();
+
+    if (!id || !isUUID(id)) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Invalid user ID format' }));
+        return;
+    }
+
+    const userIndex = users.findIndex((u) => u.id === id);
+
+    if (userIndex === -1) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'User not found' }));
+        return;
+    }
+
+    users.splice(userIndex, 1);
+
+    res.writeHead(204);
+    res.end();
+}
