@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { getAllUsers, getUserById, createUser } from '../controllers/usersController';
+import { getAllUsers, getUserById, createUser, updateUser } from '../controllers/usersController';
 
 export function handleUserRoutes(req: IncomingMessage, res: ServerResponse) {
     const { method, url } = req;
@@ -14,6 +14,10 @@ export function handleUserRoutes(req: IncomingMessage, res: ServerResponse) {
 
     if (url?.startsWith('/api/users/') && method === 'GET') {
         return getUserById(req, res);
+    }
+
+    if (url?.startsWith('/api/users/') && method === 'PUT') {
+        return updateUser(req, res);
     }
 
     res.writeHead(404, { 'Content-Type': 'application/json' });

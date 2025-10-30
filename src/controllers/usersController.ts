@@ -66,3 +66,60 @@ export function createUser(req: IncomingMessage, res: ServerResponse) {
         }
     });
 }
+
+export function updateUser(req: IncomingMessage, res: ServerResponse) {
+    const urlParts = parse(req.url || '', true);
+    const id = urlParts.pathname?.split('/').pop();
+
+    if (!id || !isUUID(id)) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Invalid user ID format' }));
+        return;
+    }
+
+    const userIndex = users.findIndex((u) => u.id === id);
+
+    if (userIndex === -1) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'User not found' }));
+        return;
+    }
+
+    let body = '';
+    req.on('data', (chunk) => {
+        body += chunk;
+    });
+
+    req.on('end', () => {
+        try {
+            const data = JSON.parse(body);
+            const { username, age, hobbies } = data;
+
+            if (
+                typeof username !== 'string' ||
+                typeof age !== 'number' ||
+                !Array.isArray(hobbies) ||
+                !hobbies.every((h) => typeof h === 'string')
+            ) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Invalid user data' }));
+                return;
+            }
+
+            const updatedUser = {
+                id,
+                username,
+                age,
+                hobbies,
+            };
+
+            users[userIndex] = updatedUser;
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(updatedUser));
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Invalid JSON format' }));
+        }
+    });
+}
