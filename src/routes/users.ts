@@ -6,6 +6,7 @@ export function handleUserRoutes(req: IncomingMessage, res: ServerResponse) {
 
     try {
         if (url === '/api/users' && method === 'GET') {
+            // throw new Error('Test');
             return getAllUsers(res);
         }
 
