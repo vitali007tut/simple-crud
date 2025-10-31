@@ -1,5 +1,6 @@
 {
     "scripts": {
+        "start:multi": "ts-node src/cluster/startCluster.ts",
         "start:dev": "ts-node-dev src/index.ts",
         "build": "tsc",
         "start:prod": "npm run build && node dist/index.js",
